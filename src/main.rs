@@ -9,13 +9,13 @@ fn main() {
         .author("Maurycy, 10maurycy10@gmail.com")
         .about("A program to preform a DHKE (warning: this makes no attempt to zero memory)")
         .after_help("Diffie–Hellman key exchange (DHKE) is a way to establish \
-        a shared secret bettween to partys without the need to secretly exchange\
-        data. This secret can then be used as a key for a ciffer. The algoritm \
-        requires 2 paramiters, a large prime (p) and a small primitive root modulo p (g). \
+        a shared secret between to party's without the need to secretly exchange\
+        data. This secret can then be used as a key for a cipher. The algorithm \
+        requires 2 non secret parameters, a large prime (p) and a small primitive root modulo p (g). \
         You can specify these on the command line with -p and -g.")
         .arg(Arg::new("hex").short('h').long("hex").help("Use hexadecimal."))
         .arg(Arg::new("modulus").short('p').long("mod").takes_value(true).value_name("NUMBER").help("A modulus to use for the exchange, this should be a large prime. (this value is *not* secret)"))
-        .arg(Arg::new("gen").short('g').long("genorator").takes_value(true).value_name("NUMBER").help("A genorator to use for the exchange, this should be a primitive root modulo p. (this value is *not* secret)"))
+        .arg(Arg::new("gen").short('g').long("genorator").takes_value(true).value_name("NUMBER").help("A generator to use for the exchange, this should be a primitive root modulo p. (this value is *not* secret)"))
         .arg(Arg::new("a").short('s').long("seed").takes_value(true).value_name("NUMBER").help("A secret number for DHKE, ommit for random."))
         .get_matches();
     
@@ -33,14 +33,14 @@ fn main() {
     
     // Public constants
     let p = BigUint::from_str_radix(p, base).expect("invalid modulus");
-    let g = BigUint::from_str_radix(g, base).expect("invalid genorator");
+    let g = BigUint::from_str_radix(g, base).expect("invalid generator");
     
 //     // Sanity check for p
 //     if ProbabPrimeResult::NotPrime == p.probab_prime(1024) {
 //         println!("WARNING: the chosen p value is not a prime!!")
 //     }
     
-    println!("the paramiters are p: {} g: {}",p.to_str_radix(base), g.to_str_radix(base));
+    println!("the parameters are p: {} g: {}",p.to_str_radix(base), g.to_str_radix(base));
     // secret value
     let mut rng = rand::thread_rng();
     let a = match args.value_of("a") {
