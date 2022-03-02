@@ -11,7 +11,7 @@ fn main() {
         .after_help("Diffie–Hellman key exchange (DHKE) is a way to establish \
         a shared secret between to party's without the need to secretly exchange \
         data. This secret can then be used as a key for a cipher. The algorithm \
-        requires 2 non secret parameters, a large prime (p) and a small primitive root modulo p (g). \
+        requires 2 non secret parameters, a large prime (p) and a 2 or small primitive root modulo p (g). \
         You can specify these on the command line with -p and -g.")
         .arg(Arg::new("hex").short('h').long("hex").help("Use hexadecimal."))
         .arg(Arg::new("modulus").short('p').long("mod").takes_value(true).value_name("NUMBER").help("A modulus to use for the exchange, this should be a large prime. (this value is *not* secret)"))
@@ -26,8 +26,8 @@ fn main() {
     println!("using base {}", base);
     
     // defaults for DHKE paramiters
-    let default_p = if !hex {"18446744073709551427".to_string()} else {"FFFFFFFFFFFFFF43".to_string()};
-    let default_g = if !hex {"104".to_string()} else {"65".to_string()};
+    let default_p = if !hex {"256933070419981688086024222330201501763".to_string()} else {"C14B8268341AA5F7C1D889FE71E2F043".to_string()};
+    let default_g = if !hex {"2".to_string()} else {"2".to_string()};
     
     let p = args.value_of("modulus").unwrap_or(&default_p);
     let g = args.value_of("gen").unwrap_or(&default_g);
