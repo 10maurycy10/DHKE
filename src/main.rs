@@ -1,7 +1,8 @@
 use clap::{Arg, Command};
-use gmp::mpz::ProbabPrimeResult;
-use gmp::mpz::Mpz;
-use gmp::rand::RandState;
+use num_bigint::BigUint;
+use num_traits::Num;
+use num_traits::Zero;
+use num_bigint::RandBigInt;
 
 fn main() {
     let args = Command::new("dhke")
@@ -31,29 +32,28 @@ fn main() {
     let g = args.value_of("gen").unwrap_or(&default_g);
     
     // Public constants
-    let p = Mpz::from_str_radix(p, base).expect("invalid modulus");
-    let g = Mpz::from_str_radix(g, base).expect("invalid genorator");
+    let p = BigUint::from_str_radix(p, base).expect("invalid modulus");
+    let g = BigUint::from_str_radix(g, base).expect("invalid genorator");
     
-    // Sanity check for p
-    if ProbabPrimeResult::NotPrime == p.probab_prime(1024) {
-        println!("WARNING: the chosen p value is not a prime!!")
-    }
+//     // Sanity check for p
+//     if ProbabPrimeResult::NotPrime == p.probab_prime(1024) {
+//         println!("WARNING: the chosen p value is not a prime!!")
+//     }
     
     println!("the paramiters are p: {} g: {}",p.to_str_radix(base), g.to_str_radix(base));
     // secret value
-    let mut rng = RandState::new();
-    rng.seed_ui(rand::random());
+    let mut rng = rand::thread_rng();
     let a = match args.value_of("a") {
         // parse the passed secret
-        Some(s) => Mpz::from_str_radix(s, base).expect("invalid a value"),
+        Some(s) => BigUint::from_str_radix(s, base).expect("invalid a value"),
         // generate a secret
-        None => rng.urandom(&p)
+        None => rng.gen_biguint_range(&BigUint::zero(),&p)
     };
     // Not so secret value to send to the other party.
-    let ga = g.powm(&a, &p);
+    let ga = g.modpow(&a, &p);
     println!("g^a % p = {} (send this value to the other party.)", ga.to_str_radix(base));
     // get the vaule from the other party.
-    let mut gb = Mpz::new();
+    let mut gb = BigUint::zero();
     loop {
         use std::io::{stdout,stdin};
         use std::io::Write;
@@ -62,7 +62,9 @@ fn main() {
         stdout().flush().unwrap();
         let mut buffer = String::new();
         stdin().read_line(&mut buffer).unwrap();
-        match Mpz::from_str_radix(&buffer, base) {
+        let buffer = buffer.trim_end_matches('\n');
+        println!("input: {:?}",buffer);
+        match BigUint::from_str_radix(&buffer, base) {
             Err(_) => println!("invalid value entered"),
             Ok(num) => {
                 gb = num;
@@ -70,6 +72,6 @@ fn main() {
             }
         }
     }
-    let gba = gb.powm(&a, &p);
+    let gba = gb.modpow(&a, &p);
     println!("The secret is {}",gba.to_str_radix(base));
 }
