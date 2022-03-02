@@ -9,13 +9,14 @@ fn main() {
         .author("Maurycy, 10maurycy10@gmail.com")
         .about("A program to preform a DHKE (warning: this makes no attempt to zero memory)")
         .after_help("Diffie–Hellman key exchange (DHKE) is a way to establish \
-        a shared secret between to party's without the need to secretly exchange\
+        a shared secret between to party's without the need to secretly exchange \
         data. This secret can then be used as a key for a cipher. The algorithm \
         requires 2 non secret parameters, a large prime (p) and a small primitive root modulo p (g). \
         You can specify these on the command line with -p and -g.")
         .arg(Arg::new("hex").short('h').long("hex").help("Use hexadecimal."))
         .arg(Arg::new("modulus").short('p').long("mod").takes_value(true).value_name("NUMBER").help("A modulus to use for the exchange, this should be a large prime. (this value is *not* secret)"))
-        .arg(Arg::new("gen").short('g').long("genorator").takes_value(true).value_name("NUMBER").help("A generator to use for the exchange, this should be a primitive root modulo p. (this value is *not* secret)"))
+        .arg(Arg::new("gen").short('g').long("generator
+        ").takes_value(true).value_name("NUMBER").help("A generator to use for the exchange, this should be a primitive root modulo p. (this value is *not* secret)"))
         .arg(Arg::new("a").short('s').long("seed").takes_value(true).value_name("NUMBER").help("A secret number for DHKE, ommit for random."))
         .get_matches();
     
@@ -53,7 +54,7 @@ fn main() {
     let ga = g.modpow(&a, &p);
     println!("g^a % p = {} (send this value to the other party.)", ga.to_str_radix(base));
     // get the vaule from the other party.
-    let mut gb = BigUint::zero();
+    let gb;
     loop {
         use std::io::{stdout,stdin};
         use std::io::Write;
@@ -63,7 +64,6 @@ fn main() {
         let mut buffer = String::new();
         stdin().read_line(&mut buffer).unwrap();
         let buffer = buffer.trim_end_matches('\n');
-        println!("input: {:?}",buffer);
         match BigUint::from_str_radix(&buffer, base) {
             Err(_) => println!("invalid value entered"),
             Ok(num) => {
